@@ -17,7 +17,7 @@ from src.utils import format_currency_br, format_integer_br, format_percent_br, 
 PROCESSED = ROOT / "data" / "processed"
 DOCS = ROOT / "docs"
 
-st.set_page_config(page_title="CRM Data Quality Revenue Governance", layout="wide")
+st.set_page_config(page_title="Customer Health and Expansion", layout="wide")
 
 
 @st.cache_data
@@ -35,10 +35,6 @@ def markdown_doc(file_name: str) -> None:
     st.markdown(path.read_text(encoding="utf-8") if path.exists() else "Arquivo ainda não gerado. Rode a preparação do projeto.")
 
 
-def executive_reading(what: str, why: str, decision: str) -> None:
-    st.info(f"**O que estamos vendo?** {what}\n\n**Por que importa?** {why}\n\n**Qual decisão isso suporta?** {decision}")
-
-
 def safe_table(df: pd.DataFrame, columns: list[str] | None = None) -> None:
     if df.empty:
         st.warning("Dados insuficientes para exibir esta tabela.")
@@ -53,123 +49,110 @@ def safe_bar(df: pd.DataFrame, x: str, y: str, title: str) -> None:
     st.plotly_chart(px.bar(df, x=x, y=y, title=title), use_container_width=True)
 
 
+def executive_reading(what: str, why: str, decision: str) -> None:
+    st.info(f"**O que estamos vendo?** {what}\n\n**Por que importa?** {why}\n\n**Qual decisão isso suporta?** {decision}")
+
+
 def overview(tables: dict[str, pd.DataFrame]) -> None:
-    st.title("Visão Executiva")
+    st.title("Customer Health and Expansion")
+    st.caption("Case RevOps SaaS B2B: health score, churn risk, GRR, NRR, expansão, QBR, NPS e carteira CSM.")
     summary = metrics.executive_summary_metrics(tables)
     cols = st.columns(4)
-    cols[0].metric("Score geral", f"{summary['crm_data_quality_score']:.1f}/100")
-    cols[1].metric("Forecast reliability", f"{summary['forecast_reliability_score']:.1f}/100")
-    cols[2].metric("Pipeline hygiene", f"{summary['pipeline_hygiene_score']:.1f}/100")
-    cols[3].metric("Receita em risco", format_currency_br(summary["revenue_at_risk_from_data_quality"]))
+    cols[0].metric("GRR", format_percent_br(summary["grr"]))
+    cols[1].metric("NRR", format_percent_br(summary["nrr"]))
+    cols[2].metric("Clientes em risco", format_integer_br(summary["risk_customers"]))
+    cols[3].metric("Pipeline expansão", format_currency_br(summary["expansion_pipeline_mrr"]))
     executive_reading(
-        "Riscos combinados de completude, ownership, forecast governance e pipeline hygiene.",
-        "Esses sinais afetam diretamente forecast, pipeline review e reporting executivo.",
-        "Priorizar saneamento antes da próxima forecast call e separar pipeline confiável de pipeline em correção.",
+        "Retenção bruta, expansão e risco de renovação precisam ser lidos juntos.",
+        "NRR pode parecer saudável enquanto perdas brutas continuam relevantes.",
+        "Separar GRR, NRR e ponte de movimentos de receita antes de definir foco de CS.",
     )
-    safe_bar(metrics.data_quality_issues_by_object(tables), "object", "issue_count", "Issues por objeto")
 
 
-def scores(tables: dict[str, pd.DataFrame]) -> None:
-    st.title("CRM Data Quality Score")
-    frame = pd.DataFrame(
-        [{"dimensão": obj, "score": metrics.object_quality_score(obj, tables)} for obj in ["leads", "accounts", "contacts", "opportunities"]]
-        + [
-            {"dimensão": "forecast", "score": metrics.forecast_reliability_score(tables["opportunities"], tables["activities"])},
-            {"dimensão": "pipeline", "score": metrics.pipeline_hygiene_score(tables["opportunities"], tables["activities"])},
-        ]
+def retention(tables: dict[str, pd.DataFrame]) -> None:
+    st.title("GRR, NRR e Churn Risk")
+    summary = metrics.executive_summary_metrics(tables)
+    cols = st.columns(4)
+    cols[0].metric("MRR atual", format_currency_br(summary["current_mrr"]))
+    cols[1].metric("MRR perdido bruto", format_currency_br(summary["gross_lost_mrr"]))
+    cols[2].metric("MRR expansão", format_currency_br(summary["expansion_mrr"]))
+    cols[3].metric("Churn events", format_integer_br(summary["churn_events"]))
+    executive_reading(
+        "A ponte de receita mostra churn, contraction e expansion separadamente.",
+        "Expansão pode mascarar perda bruta se GRR e NRR não forem reportados juntos.",
+        "Priorizar contas com risco de renovação antes de celebrar expansão líquida.",
     )
-    executive_reading("Scores por objeto e por dimensão de governança.", "Localiza onde o CRM fragiliza decisões.", "Definir foco da primeira onda de remediação.")
-    safe_bar(frame, "dimensão", "score", "Score por dimensão")
-    safe_table(metrics.missing_required_fields(tables).query("missing_count > 0"))
+    safe_table(tables["revenue_movements"])
 
 
-def leads_quality(tables: dict[str, pd.DataFrame]) -> None:
-    st.title("Leads Quality")
-    leads = tables["leads"]
-    st.metric("Leads sem source", format_percent_br(metrics.lead_missing_source_rate(leads)))
-    executive_reading("Leads sem source e duplicidades por email.", "Afeta roteamento, atribuição e leitura de demanda.", "Revisar criação de leads e dedupe antes do handoff.")
-    safe_table(metrics.duplicate_leads(leads), ["lead_id", "lead_name", "email", "source", "owner_id", "created_date"])
+def health(tables: dict[str, pd.DataFrame]) -> None:
+    st.title("Customer Health")
+    risk = metrics.health_risk_customers(tables["health_scores"])
+    safe_bar(tables["health_scores"], "risk_level", "health_score", "Health score por nível de risco")
+    safe_table(risk, ["customer_id", "health_score", "risk_level", "adoption_score", "critical_tickets", "nps_score", "days_since_last_qbr"])
 
 
-def accounts_contacts(tables: dict[str, pd.DataFrame]) -> None:
-    st.title("Account and Contact Quality")
+def renewals(tables: dict[str, pd.DataFrame]) -> None:
+    st.title("Renewal Risk")
+    renewal_risk = metrics.renewal_risk(tables["subscriptions"], tables["health_scores"])
+    executive_reading(
+        "Renovações próximas com health score baixo exigem plano de conta.",
+        "Risco de renovação conecta saúde, contrato e timing comercial.",
+        "Rodar renewal review por conta com sponsor, plano de sucesso e próximo passo.",
+    )
+    safe_table(renewal_risk, ["customer_id", "plan", "mrr", "renewal_date", "health_score", "risk_level"])
+
+
+def expansion(tables: dict[str, pd.DataFrame]) -> None:
+    st.title("Expansion Pipeline")
+    open_expansion = metrics.expansion_pipeline(tables["expansion_opportunities"])
+    missing_next = metrics.expansion_without_next_step(tables["expansion_opportunities"])
+    cols = st.columns(2)
+    cols[0].metric("Pipeline aberto", format_currency_br(metrics.expansion_pipeline_mrr(tables["expansion_opportunities"])))
+    cols[1].metric("Sem next step", format_integer_br(len(missing_next)))
+    executive_reading(
+        "Upsell e cross-sell precisam de next step datado e critério de qualificação.",
+        "Pipeline de expansão sem avanço operacional pode inflar upside.",
+        "Priorizar oportunidades por fit, health, sponsor e data de decisão.",
+    )
+    safe_table(open_expansion)
+
+
+def qbr_nps(tables: dict[str, pd.DataFrame]) -> None:
+    st.title("QBR e NPS")
+    nps = metrics.nps_summary(tables["nps_surveys"])
     cols = st.columns(3)
-    cols[0].metric("Contas sem owner", format_integer_br(len(metrics.accounts_without_owner(tables["accounts"]))))
-    cols[1].metric("Contas duplicadas", format_integer_br(len(metrics.duplicate_accounts(tables["accounts"]))))
-    cols[2].metric("Contatos sem conta", format_integer_br(len(metrics.contacts_without_account(tables["contacts"]))))
-    executive_reading("Risco de ownership, duplicidade e integridade de relacionamento.", "Fragmenta visão de conta, histórico e buying committee.", "Corrigir owner e consolidar contas antes de análises executivas.")
-    safe_table(metrics.accounts_without_owner(tables["accounts"]), ["account_id", "account_name", "domain", "segment", "owner_id"])
-    safe_table(metrics.contacts_without_account(tables["contacts"]), ["contact_id", "contact_name", "account_id", "email", "title"])
+    cols[0].metric("NPS médio", f"{nps['avg_nps']:.1f}")
+    cols[1].metric("Detratores", format_percent_br(nps["detractor_rate"]))
+    cols[2].metric("QBR gaps", format_integer_br(len(metrics.qbr_quality_gap(tables["qbr_events"]))))
+    safe_table(metrics.qbr_quality_gap(tables["qbr_events"]))
+    safe_table(tables["nps_surveys"])
 
 
-def opportunity_hygiene(tables: dict[str, pd.DataFrame]) -> None:
-    st.title("Opportunity Hygiene")
-    opportunities = tables["opportunities"]
-    cols = st.columns(4)
-    cols[0].metric("Sem owner", len(metrics.opportunities_without_owner(opportunities)))
-    cols[1].metric("Sem next step", len(metrics.opportunities_without_next_step(opportunities)))
-    cols[2].metric("Paradas", len(metrics.stale_opportunities(opportunities)))
-    cols[3].metric("Close date vencido", len(metrics.open_opportunities_with_past_close_date(opportunities)))
-    executive_reading("Oportunidades sem sinais mínimos de execução.", "Deals sem owner, next step ou data válida podem inflar pipeline.", "Limpar pipeline e exigir accountability por deal.")
-    safe_table(metrics.stale_opportunities(opportunities), ["opportunity_id", "opportunity_name", "owner_id", "stage", "amount", "close_date", "next_step"])
-
-
-def forecast_governance(tables: dict[str, pd.DataFrame]) -> None:
-    st.title("Forecast Governance")
-    opportunities = tables["opportunities"]
-    cols = st.columns(4)
-    cols[0].metric("Category inconsistente", len(metrics.forecast_category_inconsistencies(opportunities)))
-    cols[1].metric("Stage/prob. inválido", len(metrics.invalid_stage_probability_combinations(opportunities)))
-    cols[2].metric("Close date manual", format_percent_br(metrics.manual_close_date_change_rate(tables["crm_audit_log"])))
-    cols[3].metric("Forecast score", f"{metrics.forecast_reliability_score(opportunities, tables['activities']):.1f}/100")
-    executive_reading("Critérios de forecast category, probability e close_date.", "Forecast confiável depende de regras consistentes e auditáveis.", "Revisar Commit, Best Case e Pipeline antes da decisão executiva.")
-    safe_table(metrics.forecast_category_inconsistencies(opportunities), ["opportunity_id", "stage", "forecast_category", "probability", "amount", "owner_id"])
-
-
-def remediation(tables: dict[str, pd.DataFrame]) -> None:
-    st.title("Remediation Tasks")
-    tasks = tables["remediation_tasks"]
-    st.metric("Taxa de conclusão", format_percent_br(metrics.remediation_completion_rate(tasks)))
-    executive_reading("Tarefas por status, prazo e severidade.", "Sem SLA, diagnóstico não vira correção operacional.", "Criar cadência de remediação e escalonamento por severidade.")
-    safe_table(metrics.overdue_remediation_tasks(tasks))
-
-
-def revenue_impact(tables: dict[str, pd.DataFrame]) -> None:
-    st.title("Impacto na Receita")
-    value = metrics.revenue_at_risk_from_data_quality(tables["opportunities"])
-    st.metric("Pipeline associado a dados ruins", format_currency_br(value))
-    executive_reading("Valor de oportunidades com problemas críticos de qualidade.", "Mostra impacto financeiro potencial de decidir com dados frágeis.", "Priorizar correções pelo valor em risco.")
-    safe_bar(metrics.data_quality_issues_by_object(tables), "object", "issue_count", "Issues por objeto")
-
-
-def gap_consultant() -> None:
-    st.title("Consultor de Gaps")
-    gaps = read_table("consultant_gap_log")
-    if gaps.empty:
-        st.warning("Dados insuficientes para exibir esta tabela.")
-        return
-    cols = st.columns(4)
-    for col, severity in zip(cols, ["critical", "high", "medium", "low"]):
-        col.metric(severity.title(), int(gaps["severity"].eq(severity).sum()))
-    executive_reading("Gaps priorizados por severidade e impacto decisório.", "Ajuda liderança a agir sobre riscos que afetam forecast e pipeline.", "Definir owner, urgência e métrica de acompanhamento.")
-    safe_table(gaps[gaps["severity"].isin(["critical", "high"])], ["gap_id", "area", "severity", "evidence", "recommended_action", "owner", "follow_up_metric", "expected_impact"])
-    safe_table(gaps)
+def csm_portfolio(tables: dict[str, pd.DataFrame]) -> None:
+    st.title("CSM Portfolio")
+    portfolio = metrics.csm_portfolio(tables)
+    executive_reading(
+        "Carteira CSM deve ser lida por volume, risco e health médio.",
+        "Balanceamento de carteira afeta retenção, expansão e qualidade de QBR.",
+        "Rebalancear foco por risco e valor em vez de tratar contas como fila homogênea.",
+    )
+    safe_table(portfolio)
+    safe_bar(portfolio, "owner", "risk_customers", "Clientes em risco por owner")
 
 
 PAGES = {
     "Visão Executiva": overview,
-    "CRM Data Quality Score": scores,
-    "Leads Quality": leads_quality,
-    "Account and Contact Quality": accounts_contacts,
-    "Opportunity Hygiene": opportunity_hygiene,
-    "Forecast Governance": forecast_governance,
-    "Remediation Tasks": remediation,
-    "Impacto na Receita": revenue_impact,
-    "Consultor de Gaps": lambda tables: gap_consultant(),
+    "GRR, NRR e Churn Risk": retention,
+    "Customer Health": health,
+    "Renewal Risk": renewals,
+    "Expansion Pipeline": expansion,
+    "QBR e NPS": qbr_nps,
+    "CSM Portfolio": csm_portfolio,
+    "Consultor de Gaps": lambda tables: (st.title("Consultor de Gaps"), safe_table(read_table("consultant_gap_log"))),
     "IA Consultora": lambda tables: (st.title("IA Consultora"), markdown_doc("ai_consultant_analysis.md")),
     "Análise Executiva": lambda tables: (st.title("Análise Executiva"), markdown_doc("executive_analysis.md")),
-    "Qualidade dos Dados": lambda tables: (st.title("Qualidade dos Dados"), safe_table(read_table("data_quality_report"))),
-    "Production Flow": lambda tables: (st.title("Production Flow"), markdown_doc("production_flow.md")),
+    "Executive Memo": lambda tables: (st.title("Executive Memo"), markdown_doc("executive_memo.md")),
 }
 
 

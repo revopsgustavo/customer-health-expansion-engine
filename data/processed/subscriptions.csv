@@ -1,37 +1,49 @@
 subscription_id,customer_id,plan,mrr,status,contract_start_date,renewal_date,billing_cycle
-sub_cus_001,cus_001,Enterprise,59100.0,active,2025-01-01,2026-09-30,annual
-sub_cus_002,cus_002,Enterprise,58200.0,active,2025-01-01,2026-09-30,annual
-sub_cus_003,cus_003,Enterprise,57300.0,active,2025-01-01,2026-09-30,annual
-sub_cus_004,cus_004,Enterprise,56400.0,active,2025-01-01,2026-09-30,annual
-sub_cus_005,cus_005,Enterprise,55500.0,active,2025-01-01,2026-09-30,annual
-sub_cus_006,cus_006,Enterprise,54600.0,active,2025-01-01,2026-09-30,annual
-sub_cus_007,cus_007,Enterprise,53700.0,active,2025-01-01,2026-09-30,annual
-sub_cus_008,cus_008,Enterprise,52800.0,active,2025-01-01,2026-09-30,annual
-sub_cus_009,cus_009,Enterprise,51900.0,active,2025-01-01,2026-09-30,annual
-sub_cus_010,cus_010,Enterprise,51000.0,active,2025-01-01,2026-09-30,annual
-sub_cus_011,cus_011,Enterprise,50100.0,active,2025-01-01,2026-09-30,annual
-sub_cus_012,cus_012,Enterprise,49200.0,active,2025-01-01,2026-09-30,annual
-sub_cus_013,cus_013,Scale,14750.0,active,2025-01-01,2026-09-30,annual
-sub_cus_014,cus_014,Scale,14500.0,active,2025-01-01,2026-09-30,annual
-sub_cus_015,cus_015,Scale,14250.0,active,2025-01-01,2026-09-30,annual
-sub_cus_016,cus_016,Scale,14000.0,active,2025-01-01,2026-09-30,annual
-sub_cus_017,cus_017,Scale,13750.0,active,2025-01-01,2026-09-30,annual
-sub_cus_018,cus_018,Scale,13500.0,active,2025-01-01,2026-09-30,annual
-sub_cus_019,cus_019,Scale,13250.0,active,2025-01-01,2026-09-30,annual
-sub_cus_020,cus_020,Scale,13000.0,active,2025-01-01,2026-09-30,annual
-sub_cus_021,cus_021,Scale,12750.0,active,2025-01-01,2026-09-30,annual
-sub_cus_022,cus_022,Scale,12500.0,active,2025-01-01,2026-09-30,annual
-sub_cus_023,cus_023,Scale,12250.0,active,2025-01-01,2026-09-30,annual
-sub_cus_024,cus_024,Scale,12000.0,active,2025-01-01,2026-09-30,annual
-sub_cus_025,cus_025,Starter,3375.0,active,2025-01-01,2026-09-30,annual
-sub_cus_026,cus_026,Starter,3330.0,active,2025-01-01,2026-09-30,annual
-sub_cus_027,cus_027,Starter,3285.0,churned,2025-01-01,2026-09-30,annual
-sub_cus_028,cus_028,Starter,3240.0,active,2025-01-01,2026-09-30,annual
-sub_cus_029,cus_029,Starter,3195.0,active,2025-01-01,2026-09-30,annual
-sub_cus_030,cus_030,Starter,3150.0,active,2025-01-01,2026-09-30,annual
-sub_cus_031,cus_031,Starter,3105.0,churned,2025-01-01,2026-09-30,annual
-sub_cus_032,cus_032,Starter,3060.0,active,2025-01-01,2026-09-30,annual
-sub_cus_033,cus_033,Starter,3015.0,active,2025-01-01,2026-09-30,annual
-sub_cus_034,cus_034,Starter,2970.0,churned,2025-01-01,2026-09-30,annual
-sub_cus_035,cus_035,Starter,2925.0,active,2025-01-01,2026-09-30,annual
-sub_cus_036,cus_036,Starter,2880.0,active,2025-01-01,2026-09-30,annual
+sub_cus_001,cus_001,Mid Market,26228.0,active,2025-07-04,2026-08-10,annual
+sub_cus_002,cus_002,SMB,10141.0,active,2025-07-04,2026-08-17,annual
+sub_cus_003,cus_003,Enterprise,58878.0,active,2025-07-04,2026-08-24,annual
+sub_cus_004,cus_004,Mid Market,29921.0,active,2025-07-04,2026-08-31,annual
+sub_cus_005,cus_005,SMB,10347.0,active,2025-07-04,2026-09-07,annual
+sub_cus_006,cus_006,Enterprise,57767.0,active,2025-07-04,2026-09-14,annual
+sub_cus_007,cus_007,Mid Market,28327.0,active,2025-07-04,2026-09-21,annual
+sub_cus_008,cus_008,SMB,10531.0,active,2025-07-04,2026-09-28,annual
+sub_cus_009,cus_009,Enterprise,60453.0,active,2025-07-04,2026-10-05,annual
+sub_cus_010,cus_010,Mid Market,29573.0,active,2025-07-04,2026-10-12,annual
+sub_cus_011,cus_011,SMB,9463.0,active,2025-07-04,2026-10-19,annual
+sub_cus_012,cus_012,Enterprise,60830.0,active,2025-07-04,2026-10-26,annual
+sub_cus_013,cus_013,Mid Market,28201.0,active,2025-07-04,2026-11-02,annual
+sub_cus_014,cus_014,SMB,7876.0,active,2025-07-04,2026-11-09,annual
+sub_cus_015,cus_015,Enterprise,60551.0,active,2025-07-04,2026-11-16,annual
+sub_cus_016,cus_016,Mid Market,28890.0,active,2025-07-04,2026-11-23,annual
+sub_cus_017,cus_017,SMB,10949.0,active,2025-07-04,2026-11-30,annual
+sub_cus_018,cus_018,Enterprise,58928.0,active,2025-07-04,2026-12-07,annual
+sub_cus_019,cus_019,Mid Market,26890.0,active,2025-07-04,2026-12-14,annual
+sub_cus_020,cus_020,SMB,9662.0,active,2025-07-04,2026-12-21,annual
+sub_cus_021,cus_021,Enterprise,61061.0,active,2025-07-04,2026-12-28,annual
+sub_cus_022,cus_022,Mid Market,29919.0,active,2025-07-04,2027-01-04,annual
+sub_cus_023,cus_023,SMB,10972.0,active,2025-07-04,2027-01-11,annual
+sub_cus_024,cus_024,Enterprise,59831.0,active,2025-07-04,2027-01-18,annual
+sub_cus_025,cus_025,Mid Market,29438.0,active,2025-07-04,2027-01-25,annual
+sub_cus_026,cus_026,SMB,10362.0,active,2025-07-04,2027-02-01,annual
+sub_cus_027,cus_027,Enterprise,57126.0,active,2025-07-04,2027-02-08,annual
+sub_cus_028,cus_028,Mid Market,27939.0,active,2025-07-04,2027-02-15,annual
+sub_cus_029,cus_029,SMB,10254.0,active,2025-07-04,2027-02-22,annual
+sub_cus_030,cus_030,Enterprise,60447.0,active,2025-07-04,2026-08-03,annual
+sub_cus_031,cus_031,Mid Market,26734.0,active,2025-07-04,2026-08-10,annual
+sub_cus_032,cus_032,SMB,8746.0,active,2025-07-04,2026-08-17,annual
+sub_cus_033,cus_033,Enterprise,59189.0,active,2025-07-04,2026-08-24,annual
+sub_cus_034,cus_034,Mid Market,28423.0,active,2025-07-04,2026-08-31,annual
+sub_cus_035,cus_035,SMB,10568.0,active,2025-07-04,2026-09-07,annual
+sub_cus_036,cus_036,Enterprise,60078.0,active,2025-07-04,2026-09-14,annual
+sub_cus_037,cus_037,Mid Market,29374.0,active,2025-07-04,2026-09-21,annual
+sub_cus_038,cus_038,SMB,11644.0,active,2025-07-04,2026-09-28,annual
+sub_cus_039,cus_039,Enterprise,58363.0,active,2025-07-04,2026-10-05,annual
+sub_cus_040,cus_040,Mid Market,27578.0,active,2025-07-04,2026-10-12,annual
+sub_cus_041,cus_041,SMB,7366.0,active,2025-07-04,2026-10-19,annual
+sub_cus_042,cus_042,Enterprise,60619.0,active,2025-07-04,2026-10-26,annual
+sub_cus_043,cus_043,Mid Market,28022.0,active,2025-07-04,2026-11-02,annual
+sub_cus_044,cus_044,SMB,10295.0,active,2025-07-04,2026-11-09,annual
+sub_cus_045,cus_045,Enterprise,58384.0,active,2025-07-04,2026-11-16,annual
+sub_cus_046,cus_046,Mid Market,26889.0,active,2025-07-04,2026-11-23,annual
+sub_cus_047,cus_047,SMB,10215.0,active,2025-07-04,2026-11-30,annual
+sub_cus_048,cus_048,Enterprise,58898.0,active,2025-07-04,2026-12-07,annual

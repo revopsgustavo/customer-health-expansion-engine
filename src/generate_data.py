@@ -1,57 +1,210 @@
-﻿from __future__ import annotations
+from __future__ import annotations
+
 import sqlite3
 from pathlib import Path
+
 import numpy as np
 import pandas as pd
-ROOT=Path(__file__).resolve().parents[1]; PROCESSED=ROOT/'data'/'processed'; DATABASE=ROOT/'data'/'database'; TODAY=pd.Timestamp('2026-07-04')
-def d(days): return (TODAY-pd.Timedelta(days=days)).strftime('%Y-%m-%d')
-def f(days): return (TODAY+pd.Timedelta(days=days)).strftime('%Y-%m-%d')
-def main():
-    rng=np.random.default_rng(42); PROCESSED.mkdir(parents=True,exist_ok=True); DATABASE.mkdir(parents=True,exist_ok=True)
-    users=pd.DataFrame([['usr_001','Ana Souza','AE','Enterprise','active'],['usr_002','Bruno Lima','AE','Mid Market','active'],['usr_003','Carla Rocha','AE','SMB','active'],['usr_004','Diego Martins','Sales Manager','Enterprise','active'],['usr_005','Fernanda Alves','RevOps','Operations','active'],['usr_006','Gustavo Pereira','SDR','Inbound','active'],['usr_007','Helena Costa','AE','Mid Market','active']],columns=['user_id','user_name','role','team','status'])
-    stages=pd.DataFrame([['Prospecting',.10,'Pipeline'],['Discovery',.25,'Pipeline'],['Solution',.45,'Best Case'],['Proposal',.60,'Best Case'],['Negotiation',.75,'Best Case'],['Procurement',.85,'Commit'],['Contract',.95,'Commit'],['Closed Won',1,'Closed'],['Closed Lost',0,'Omitted']],columns=['stage','default_probability','default_forecast_category'])
-    forecast_categories=pd.DataFrame({'forecast_category':['Pipeline','Best Case','Commit','Closed','Omitted'],'definition':['Early pipeline','Possible upside','Manager validated','Closed won','Excluded']})
-    leads=[]
-    for i in range(1,121):
-        email='duplicate.alpha@example.com' if i in [18,19] else 'duplicate.beta@example.com' if i in [44,45,46] else f'lead{i:03d}@example.com'
-        leads.append({'lead_id':f'lead_{i:03d}','lead_name':f'Lead {i:03d}','email':email,'company':f'Company {i%37:02d}','source':'' if i%9==0 else rng.choice(['Inbound','Outbound','Partner','Paid Search','Event']),'owner_id':rng.choice(['usr_006','usr_001','usr_002','usr_003']),'created_date':d(int(rng.integers(1,90))),'status':rng.choice(['New','Working','Qualified','Disqualified'])})
-    leads=pd.DataFrame(leads)
-    accounts=[]
-    for i in range(1,46):
-        name=f'Account {i:02d}'; domain=f'account{i:02d}.com'
-        if i in [12,13]: name,domain='Atlas Cloud','atlascloud.com'
-        if i in [27,28]: name,domain='Nexa SaaS','nexasaas.com'
-        accounts.append({'account_id':f'acct_{i:03d}','account_name':name,'domain':domain,'segment':['SMB','Mid Market','Enterprise'][i%3],'owner_id':'' if i in [8,21,35,42] else ['usr_001','usr_002','usr_003','usr_007'][i%4],'industry':['Fintech','Healthtech','Edtech','Retail','Logistics'][i%5],'created_date':d((i*2)%90)})
-    accounts=pd.DataFrame(accounts)
-    contacts=pd.DataFrame([{'contact_id':f'cont_{i:03d}','account_id':'' if i in [9,31,62,77] else accounts.iloc[(i*3)%len(accounts)]['account_id'],'contact_name':f'Contact {i:03d}','email':f'contact{i:03d}@example.com','title':['CFO','Head of Sales','RevOps Manager','CEO','Operations Manager'][i%5],'created_date':d((i*5)%90)} for i in range(1,91)])
-    defaults={'Prospecting':(.1,'Pipeline'),'Discovery':(.25,'Pipeline'),'Solution':(.45,'Best Case'),'Proposal':(.6,'Best Case'),'Negotiation':(.75,'Best Case'),'Procurement':(.85,'Commit'),'Contract':(.95,'Commit'),'Closed Won':(1,'Closed'),'Closed Lost':(0,'Omitted')}; st=list(defaults)
-    opps=[]
-    for i in range(1,81):
-        stage=st[i%len(st)]; prob,cat=defaults[stage]; amount=float(rng.integers(18000,240000)); close=f(int(rng.integers(5,55)))
-        if i in [5,16,37,52,64]: close=''
-        if i in [6,17,29,47,68]: cat=rng.choice(['Pipeline','Best Case','Commit','Closed','Omitted'])
-        if i in [10,22,43,59]: prob=float(rng.choice([.05,.20,.98]))
-        if i in [11,24,40,67]: amount=0.0
-        if i in [8,26,53,72]: close=d(int(rng.integers(1,35))); stage='Negotiation' if stage in ['Closed Won','Closed Lost'] else stage
-        owner='' if i in [12,33,57,74] else ['usr_001','usr_002','usr_003','usr_007'][i%4]
-        next_step='' if i in [7,18,32,48,55,69] else f'Follow up with buying committee {i}'
-        loss='No budget' if stage=='Closed Lost' else ''
-        if i in [17,35,62]: stage,cat,prob,loss='Closed Lost','Omitted',0.0,''
-        if i in [14,41]: stage,cat,prob,amount='Closed Won','Closed',1.0,0.0
-        opps.append({'opportunity_id':f'opp_{i:03d}','account_id':accounts.iloc[(i*2)%len(accounts)]['account_id'],'owner_id':owner,'opportunity_name':f'Opportunity {i:03d}','stage':stage,'forecast_category':cat,'probability':prob,'amount':amount,'close_date':close,'created_date':d(int(rng.integers(20,90))),'last_stage_change_date':d(int(rng.integers(1,45))),'next_step':next_step,'loss_reason':loss})
-    opportunities=pd.DataFrame(opps)
-    stale={'opp_007','opp_018','opp_032','opp_048','opp_055','opp_069'}; activities=[]
-    for pos,row in opportunities.iterrows(): activities.append({'activity_id':f'act_{pos+1:03d}','related_object_type':'opportunity','related_object_id':row['opportunity_id'],'activity_type':['call','email','meeting'][pos%3],'activity_date':d(25+(pos%18) if row['opportunity_id'] in stale else (pos*3)%18),'owner_id':row['owner_id'],'notes_quality':['high','medium','low'][pos%3]})
-    activities=pd.DataFrame(activities)
-    audit=[]; eid=1
-    for _,opp in opportunities.head(55).iterrows():
-        for j in range(3 if opp['owner_id']=='usr_002' else 1): audit.append({'event_id':f'evt_{eid:04d}','object_type':'opportunity','object_id':opp['opportunity_id'],'field_changed':'close_date' if j%2==0 else 'forecast_category','old_value':f(10+j),'new_value':f(20+j),'changed_by':opp['owner_id'] or 'usr_005','change_type':'manual','changed_at':d((eid*2)%90),'activity_correlated':bool(j%2)}); eid+=1
-    crm_audit_log=pd.DataFrame(audit)
-    data_quality_checks=pd.DataFrame([['chk_001','leads','source','required_field','critical','active'],['chk_002','accounts','owner_id','required_field','critical','active'],['chk_003','contacts','account_id','relationship_integrity','high','active'],['chk_004','opportunities','close_date','forecast_governance','critical','active']],columns=['check_id','object','field','check_type','severity','status'])
-    remediation_tasks=pd.DataFrame([['tsk_001','lead_source_cleanup','usr_006','high',d(4),'in_progress'],['tsk_002','account_owner_backfill','usr_005','critical',d(2),'open'],['tsk_003','forecast_category_review','usr_004','critical',f(3),'open'],['tsk_004','closed_lost_reason_policy','usr_005','high',d(7),'open'],['tsk_005','duplicate_account_merge','usr_005','medium',f(10),'completed'],['tsk_006','close_date_push_reason_code','usr_004','high',d(1),'open']],columns=['task_id','task_name','owner_id','severity','due_date','status'])
-    tables=locals(); names=['leads','accounts','contacts','opportunities','users','activities','forecast_categories','stages','crm_audit_log','data_quality_checks','remediation_tasks']
-    for n in names: tables[n].to_csv(PROCESSED/f'{n}.csv',index=False)
-    with sqlite3.connect(DATABASE/'crm_governance_case.sqlite') as conn:
-        for n in names: tables[n].to_sql(n,conn,if_exists='replace',index=False)
-    print(f'Synthetic CRM governance data generated in {PROCESSED}')
-if __name__=='__main__': main()
+
+ROOT = Path(__file__).resolve().parents[1]
+PROCESSED = ROOT / "data" / "processed"
+DATABASE = ROOT / "data" / "database"
+TODAY = pd.Timestamp("2026-07-04")
+
+
+def d(days: int) -> str:
+    return (TODAY - pd.Timedelta(days=days)).strftime("%Y-%m-%d")
+
+
+def f(days: int) -> str:
+    return (TODAY + pd.Timedelta(days=days)).strftime("%Y-%m-%d")
+
+
+def main() -> None:
+    rng = np.random.default_rng(42)
+    PROCESSED.mkdir(parents=True, exist_ok=True)
+    DATABASE.mkdir(parents=True, exist_ok=True)
+
+    csms = pd.DataFrame(
+        [
+            ["csm_001", "Ana Martins", "Enterprise"],
+            ["csm_002", "Bruno Rocha", "Enterprise"],
+            ["csm_003", "Carla Lima", "Mid Market"],
+            ["csm_004", "Diego Alves", "SMB"],
+        ],
+        columns=["csm_id", "csm_name", "primary_segment"],
+    )
+
+    customers = []
+    subscriptions = []
+    health_scores = []
+    product_usage = []
+    support_tickets = []
+    nps_surveys = []
+    qbr_events = []
+    expansion_opportunities = []
+    revenue_movements = []
+    churn_events = []
+
+    for i in range(1, 49):
+        customer_id = f"cus_{i:03d}"
+        csm_id = csms.iloc[i % len(csms)]["csm_id"]
+        segment = ["Enterprise", "Mid Market", "SMB"][i % 3]
+        base_mrr = float([59000, 28000, 9200][i % 3] + rng.integers(-2200, 2600))
+        risk_level = "high" if i in {3, 8, 15, 22, 31, 40} else "medium" if i % 5 == 0 else "low"
+        adoption = 46.0 if risk_level == "high" else 66.0 if risk_level == "medium" else 84.0
+        nps = 4 if risk_level == "high" else 7 if risk_level == "medium" else int(rng.integers(8, 11))
+        health = max(15.0, min(98.0, adoption * 0.65 + nps * 3.5 - (10 if risk_level == "high" else 0)))
+
+        customers.append(
+            {
+                "customer_id": customer_id,
+                "account_name": f"Customer {i:03d}",
+                "segment": segment,
+                "csm_id": csm_id,
+                "acquisition_date": d(360 - i),
+                "arr": base_mrr * 12,
+                "gross_margin": 0.78,
+            }
+        )
+        subscriptions.append(
+            {
+                "subscription_id": f"sub_{customer_id}",
+                "customer_id": customer_id,
+                "plan": segment,
+                "mrr": base_mrr,
+                "status": "active",
+                "contract_start_date": d(365),
+                "renewal_date": f(30 + (i * 7) % 210),
+                "billing_cycle": "annual",
+            }
+        )
+        health_scores.append(
+            {
+                "customer_id": customer_id,
+                "health_date": d(4),
+                "health_score": round(health, 1),
+                "risk_level": risk_level,
+                "adoption_score": adoption,
+                "critical_tickets": 1 if risk_level == "high" and i % 2 == 0 else 0,
+                "nps_score": nps,
+                "days_since_last_qbr": 115 if risk_level == "high" else 48,
+            }
+        )
+        for week in range(4):
+            licensed = int(30 + i % 25)
+            active = int(licensed * (adoption / 100))
+            product_usage.append(
+                {
+                    "usage_id": f"use_{customer_id}_{week}",
+                    "customer_id": customer_id,
+                    "week_start_date": d(7 * (week + 1)),
+                    "active_users": active,
+                    "licensed_users": licensed,
+                    "key_feature_events": int(active * 28),
+                    "login_count": int(active * 12),
+                    "adoption_score": adoption,
+                }
+            )
+        support_tickets.append(
+            {
+                "ticket_id": f"tic_{customer_id}",
+                "customer_id": customer_id,
+                "created_date": d(18),
+                "closed_date": "" if risk_level == "high" else d(8),
+                "severity": "critical" if risk_level == "high" and i % 2 == 0 else "medium",
+                "status": "open" if risk_level == "high" else "closed",
+                "category": "bug",
+                "first_response_hours": 18.0 if risk_level == "high" else 4.0,
+            }
+        )
+        nps_surveys.append(
+            {
+                "survey_id": f"nps_{customer_id}",
+                "customer_id": customer_id,
+                "survey_date": d(19),
+                "nps_score": nps,
+                "respondent_role": "executive_sponsor",
+                "comment_theme": "synthetic_theme",
+            }
+        )
+        qbr_events.append(
+            {
+                "qbr_id": f"qbr_{customer_id}",
+                "customer_id": customer_id,
+                "qbr_date": d(120 if risk_level == "high" else 45),
+                "executive_sponsor_present": risk_level != "high",
+                "success_plan_updated": risk_level != "high",
+                "next_steps_recorded": risk_level != "high",
+                "qbr_quality_score": 52 if risk_level == "high" else 78,
+            }
+        )
+        if i % 4 == 0:
+            expansion_opportunities.append(
+                {
+                    "opportunity_id": f"exp_{i:03d}",
+                    "customer_id": customer_id,
+                    "created_date": d(25),
+                    "expansion_type": "new_module" if i % 8 == 0 else "seat_growth",
+                    "estimated_expansion_mrr": float(8000 + (i % 6) * 4500),
+                    "stage": "qualified",
+                    "probability": 0.55,
+                    "next_step": "" if i in {8, 16, 32} else f(10),
+                    "owner": csm_id,
+                }
+            )
+
+    for movement_id, customer_id, movement_type, amount, reason in [
+        ("mov_001", "cus_003", "churn", 54000.0, "lost_value"),
+        ("mov_002", "cus_027", "churn", 3300.0, "lost_logo"),
+        ("mov_003", "cus_015", "contraction", 9000.0, "seat_reduction"),
+        ("mov_004", "cus_008", "expansion", 36000.0, "new_module"),
+        ("mov_005", "cus_024", "expansion", 22000.0, "seat_growth"),
+        ("mov_006", "cus_032", "expansion", 18000.0, "cross_sell"),
+    ]:
+        revenue_movements.append(
+            {
+                "movement_id": movement_id,
+                "customer_id": customer_id,
+                "movement_date": d(30),
+                "movement_type": movement_type,
+                "mrr_amount": amount,
+                "reason": reason,
+                "source": "synthetic",
+            }
+        )
+        if movement_type == "churn":
+            churn_events.append(
+                {
+                    "churn_event_id": movement_id.replace("mov", "chr"),
+                    "customer_id": customer_id,
+                    "churn_date": d(30),
+                    "churn_mrr": amount,
+                    "churn_reason": "not_validated",
+                    "save_playbook_used": customer_id != "cus_003",
+                }
+            )
+
+    tables = {
+        "customers": pd.DataFrame(customers),
+        "subscriptions": pd.DataFrame(subscriptions),
+        "health_scores": pd.DataFrame(health_scores),
+        "product_usage": pd.DataFrame(product_usage),
+        "support_tickets": pd.DataFrame(support_tickets),
+        "nps_surveys": pd.DataFrame(nps_surveys),
+        "qbr_events": pd.DataFrame(qbr_events),
+        "expansion_opportunities": pd.DataFrame(expansion_opportunities),
+        "revenue_movements": pd.DataFrame(revenue_movements),
+        "churn_events": pd.DataFrame(churn_events),
+        "csms": csms,
+    }
+    for name, table in tables.items():
+        table.to_csv(PROCESSED / f"{name}.csv", index=False)
+    with sqlite3.connect(DATABASE / "customer_health_expansion_case.sqlite") as conn:
+        for name, table in tables.items():
+            table.to_sql(name, conn, if_exists="replace", index=False)
+    print(f"Synthetic customer health and expansion data generated in {PROCESSED}")
+
+
+if __name__ == "__main__":
+    main()

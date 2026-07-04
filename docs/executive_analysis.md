@@ -1,52 +1,46 @@
 # Análise Executiva
 
 ## Veredito executivo
-Os dados sugerem que o CRM ainda não está plenamente confiável para decisões executivas sem saneamento prévio. O score geral de qualidade está em 74.0/100, o Forecast Reliability Score está em 92.8/100 e o Pipeline Hygiene Score está em 82.4/100. A evidência disponível aponta para R$ 3.270.414,00 em pipeline associado a problemas de qualidade de dados.
+Os dados sugerem uma carteira SaaS B2B com 48 clientes ativos, GRR de 95,9%, NRR de 100,6%, 6 clientes em risco e 4 renovações próximas associadas a baixo health.
 
 ## Diagnóstico do período
-O risco principal não está apenas na existência de campos incompletos, mas no impacto desses problemas sobre forecast, pipeline hygiene, ownership e confiabilidade da tomada de decisão. CRM Data Quality deve ser tratada como governança de receita, não como checklist técnico.
+A evidência disponível aponta para a necessidade de separar retenção bruta, expansão e risco de renovação. NRR pode esconder perda bruta quando expansão compensa churn ou contraction; por isso, a leitura executiva deve mostrar GRR, NRR e ponte de movimentos de receita no mesmo contexto.
 
 ## Resumo de métricas
-- Leads sem source: 13.
-- Duplicidade de leads: 5 registros envolvidos.
-- Duplicidade de contas: 4 registros envolvidos.
-- Contatos sem conta: 4.
-- Contas sem owner: 4.
-- Oportunidades sem owner: 4.
-- Oportunidades sem close_date: 5.
-- Oportunidades sem next_step: 5.
-- Oportunidades paradas: 38.
-- Estágio avançado sem atividade recente: 7.
-- Closed Won sem amount: 2.
-- Closed Lost sem loss_reason: 3.
-- Amount zerado em oportunidade: 6.
-- Oportunidades abertas com close_date no passado: 4.
-- Forecast category inconsistente: 6.
-- Stage/probability incompatível: 7.
-- Mudanças manuais de close_date: 84,0%.
-- Tarefas de remediação atrasadas: 4.
+- Clientes ativos: 48.
+- MRR atual: R$ 1.563.140,00.
+- GRR: 95,9%.
+- NRR: 100,6%.
+- MRR perdido bruto: R$ 66.300,00.
+- MRR de expansão realizado: R$ 76.000,00.
+- Pipeline aberto de expansão: R$ 204.000,00.
+- Clientes em risco: 6.
+- Renovações em risco: 4.
+- Eventos de churn: 2.
+- Health score médio: 76.7.
+- NPS médio: 8.0.
+- Taxa de detratores: 12,5%.
+- Gaps de QBR: 6.
+- Expansões sem next step: 3.
 
 ## Principais achados
-- Oportunidades concentram o maior risco porque afetam diretamente forecast, pipeline, amount, close_date e accountability comercial.
-- Há indícios de fragilidade em ownership, com contas e oportunidades sem responsável operacional.
-- Há oportunidades críticas sem próxima ação, paradas ou com close_date vencido, o que reduz a confiabilidade do pipeline.
-- Há Closed Won e Closed Lost sem dados obrigatórios, comprometendo leitura de receita e win/loss analysis.
-- Há inconsistências de forecast category e stage/probability que podem distorcer Commit, Best Case e weighted forecast.
-
-## Riscos operacionais
-Decidir forecast, meta, capacidade comercial, hiring ou expectativa de caixa com esses dados pode inflar pipeline, atrasar correções críticas e reduzir confiança de Finance/FP&A no reporting comercial.
+- Os dados sugerem que Customer Health precisa ser lido como governança de receita recorrente, não apenas como score operacional.
+- Há indícios de risco em clientes com health baixo e renovações próximas, exigindo plano por conta.
+- A evidência disponível aponta para risco de expansão mascarar perda bruta se GRR e NRR não forem reportados juntos.
+- Oportunidades de upsell/cross-sell sem próximo passo precisam ser validadas antes de entrar como upside confiável.
+- QBR e NPS devem alimentar priorização de carteira CSM e planos de retenção.
 
 ## Recomendações priorizadas
 | Responsável | Ação | Métrica impactada | Acompanhamento | Prazo sugerido | Impacto esperado |
 |---|---|---|---|---|---|
-| Head de RevOps | War room de CRM hygiene para campos críticos | CRM Data Quality Score | missing_required_fields | 5 dias úteis | Maior confiança executiva |
-| CRO e Head de Sales | Separar forecast confiável de pipeline em saneamento | Forecast Reliability Score | forecast_category_inconsistencies | Próxima forecast call | Menor risco de forecast frágil |
-| Sales Managers | Revisar oportunidades sem owner, close_date, next_step ou atividade | Pipeline Hygiene Score | stale_opportunities | 48 horas | Pipeline mais acionável |
-| CRM Manager | Implantar matriz stage x required fields x forecast category | Forecast Reliability Score | invalid_stage_probability_combinations | 30 dias | Menor subjetividade de forecast |
-| RevOps Manager | Criar SLA de remediação por severidade | Remediation Completion Rate | overdue_remediation_tasks | Semanal | Governança contínua |
+| Head de CS | Revisar renovações em risco com plano por conta | Renewal Risk | renewal_risk_customers | 5 dias úteis | Menor risco de churn evitável |
+| CS Ops | Criar fila de intervenção por health, ARR e renovação | Customer Health | risk_customers | Semanal | Carteira CSM mais acionável |
+| CRO | Reportar GRR, NRR e ponte de receita no mesmo painel | GRR/NRR | grr_nrr_bridge | Próximo business review | Menos leitura otimista de expansão |
+| CSM Manager | Exigir next step datado em expansão qualificada | Expansion Pipeline | expansion_without_next_step | 48 horas | Upside mais confiável |
+| CS Ops | Padronizar QBR com sponsor, plano e decisão | QBR Quality | qbr_quality_score | 30 dias | Melhor governança de valor |
 
 ## Limitações
-Os dados são sintéticos e a análise é rule-based. As hipóteses precisam ser validadas com Head de RevOps, Sales Ops, CRM Admin, Sales Managers, AEs e Finance/FP&A antes de qualquer conclusão causal.
+Os dados são sintéticos e a análise é rule-based. As hipóteses precisam ser validadas com CSMs, Head de CS, Sales/CS Ops, clientes e dados reais de uso antes de qualquer conclusão causal.
 
 ## Conclusão executiva
-A evidência disponível aponta para necessidade de tratar CRM Data Quality como disciplina contínua de Revenue Governance. O foco imediato deve ser proteger forecast, pipeline hygiene e ownership antes da próxima decisão executiva.
+A recomendação é priorizar uma rotina de Revenue Governance para Customer Success: proteger GRR, qualificar NRR, revisar renovações em risco e tratar expansão como hipótese operacional até existir evidência de avanço.

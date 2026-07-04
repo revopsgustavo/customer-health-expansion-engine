@@ -30,10 +30,10 @@ def build_analysis(gaps: pd.DataFrame, summary: dict[str, float]) -> str:
     return f"""# AI Consultant Analysis
 
 ## Veredito executivo
-Os dados sugerem que o CRM ainda não deve ser tratado como fonte plenamente confiável para decisões executivas sem uma onda de saneamento prévia. O score geral está em {summary['crm_data_quality_score']:.1f}/100, com {critical} gaps críticos, {high} gaps altos e {format_currency_br(summary['revenue_at_risk_from_data_quality'])} em pipeline associado a problemas de qualidade de dados. A análise é rule-based e gera hipóteses para validação, não confirmação de causa raiz.
+Os dados sugerem uma operação de Customer Success com sinais combinados de risco de retenção, oportunidade de expansão e necessidade de governança de carteira. O GRR está em {format_percent_br(summary['grr'])}, o NRR em {format_percent_br(summary['nrr'])}, há {summary['risk_customers']} clientes em risco e {summary['renewal_risk_customers']} renovações próximas associadas a baixo health. A análise é rule-based, usa dados sintéticos e gera hipóteses para validação humana.
 
 ## Leitura da operação
-A evidência disponível aponta para risco combinado em completude de dados, ownership, higiene de pipeline, forecast governance, stage/probability, close date hygiene e processo de remediação. O ponto central para RevOps é que CRM Data Quality não é um checklist técnico: é fundamento de Revenue Governance, Forecast Reliability e Pipeline Hygiene.
+A evidência disponível aponta para um ponto central: expansão e NRR não devem ser lidos isoladamente. Quando existe perda bruta de MRR, expansão pode mascarar fragilidade de retenção. RevOps, CS Ops e liderança de Customer Success devem separar GRR, NRR, churn, contraction, expansion, QBR, NPS e risco de renovação antes de tomar decisões de carteira.
 
 ## Principais gaps
 ### Críticos
@@ -44,56 +44,39 @@ A evidência disponível aponta para risco combinado em completude de dados, own
 {severity_block(gaps, "medium")}
 
 ## Hipóteses prováveis
-- Os dados sugerem que regras de campos obrigatórios podem não estar conectadas ao ciclo comercial real por stage.
-- Há indícios de que forecast category e probability podem estar sem controles suficientes.
-- A evidência disponível aponta para close date hygiene fraca e necessidade de reason code para pushes.
-- Problemas de ownership precisam ser validados com política de território, fila e SLA de aceite.
-- Tarefas de remediação atrasadas sugerem oportunidade de fortalecer accountability operacional.
+- Os dados sugerem que parte do risco de churn pode estar ligada a adoção, tickets críticos, baixa cadência de QBR ou ausência de sponsor ativo.
+- Há indícios de que oportunidades de expansão sem próximo passo podem inflar upside sem avanço operacional real.
+- A evidência disponível aponta para necessidade de reportar GRR e NRR em ponte, para evitar leitura excessivamente positiva da expansão.
+- Renovações próximas com health baixo precisam ser validadas com plano de sucesso, notas do CSM e contexto contratual.
 
 ## Evidências observadas
-- CRM Data Quality Score: {summary['crm_data_quality_score']:.1f}/100.
-- Forecast Reliability Score: {summary['forecast_reliability_score']:.1f}/100.
-- Pipeline Hygiene Score: {summary['pipeline_hygiene_score']:.1f}/100.
-- Leads sem source: {format_percent_br(summary['lead_missing_source_rate'])}.
-- Taxa de duplicidade de leads: {format_percent_br(summary['duplicate_lead_rate'])}.
-- Taxa de duplicidade de contas: {format_percent_br(summary['duplicate_account_rate'])}.
-- Mudanças manuais de close_date no audit log: {format_percent_br(summary['manual_close_date_change_rate'])}.
-- Taxa de conclusão de remediação: {format_percent_br(summary['remediation_completion_rate'])}.
+- Clientes ativos: {summary['active_customers']}.
+- MRR atual: {format_currency_br(summary['current_mrr'])}.
+- GRR: {format_percent_br(summary['grr'])}.
+- NRR: {format_percent_br(summary['nrr'])}.
+- MRR perdido bruto: {format_currency_br(summary['gross_lost_mrr'])}.
+- MRR de expansão realizado: {format_currency_br(summary['expansion_mrr'])}.
+- Pipeline aberto de expansão: {format_currency_br(summary['expansion_pipeline_mrr'])}.
+- Clientes em risco: {summary['risk_customers']}.
+- Renovações em risco: {summary['renewal_risk_customers']}.
+- NPS médio: {summary['avg_nps']:.1f}.
+- Taxa de detratores: {format_percent_br(summary['detractor_rate'])}.
 
 ## Evidências ausentes
-- Regras reais do CRM e obrigatoriedade por stage.
-- Logs completos de alteração e motivo de alteração de close_date.
-- Política de ownership e exceções aprovadas.
-- Critérios formais de Forecast Category e avanço de stage.
-- Qualidade das notas comerciais e validação dos managers.
-- Conciliação com Finance/FP&A para Closed Won e amount.
-
-## Perguntas de validação
-- Head de RevOps: quais campos devem bloquear forecast inclusion?
-- Sales Ops: quais SLAs existem para owner, close_date, next_step e loss_reason?
-- CRM Admin: quais validações estão ativas por perfil e stage?
-- Sales Managers: quais deals críticos permanecem no forecast sem evidência operacional?
-- AEs: close_date representa compromisso do comprador ou expectativa interna?
-- Finance/FP&A: Closed Won sem amount já foi conciliado com contrato ou billing?
+- Motivos validados de churn e contraction por conta.
+- Histórico real de uso por persona, módulo e valor contratado.
+- Notas qualitativas dos CSMs e sponsors executivos.
+- Critérios formais de health score e ponderação por ARR.
+- Plano de sucesso atualizado por conta e data da próxima decisão de renovação.
 
 ## Recomendações priorizadas
-### Fazer agora
-- Responsável: Head de RevOps. Ação: war room de CRM hygiene para campos críticos. Métrica impactada: CRM Data Quality Score. Acompanhamento: missing_required_fields. Prazo: 5 dias úteis. Impacto esperado: maior confiança executiva.
-- Responsável: CRO e Head de Sales. Ação: separar forecast confiável de pipeline em saneamento. Métrica impactada: Forecast Reliability Score. Acompanhamento: forecast_category_inconsistencies. Prazo: antes da próxima forecast call. Impacto esperado: menor risco de decisão com forecast frágil.
-- Responsável: Sales Managers. Ação: revisar oportunidades sem owner, close_date, next_step ou atividade recente. Métrica impactada: Pipeline Hygiene Score. Acompanhamento: stale_opportunities. Prazo: 48 horas. Impacto esperado: pipeline mais acionável.
-
-### Fazer depois
-- Responsável: CRM Manager. Ação: implementar matriz stage x required fields x forecast category. Métrica impactada: Forecast Reliability Score. Acompanhamento: invalid_stage_probability_combinations. Prazo: 30 dias. Impacto esperado: menor subjetividade no forecast.
-- Responsável: Marketing Ops e Sales Ops. Ação: dedupe e regra de source obrigatória. Métrica impactada: lead_missing_source_rate. Acompanhamento: duplicate_rate. Prazo: 30 dias. Impacto esperado: melhor roteamento e atribuição.
-
-### Monitorar
-- Responsável: RevOps Analytics. Ação: painel semanal de gaps por owner, objeto e severidade. Métrica impactada: remediation_completion_rate. Acompanhamento: overdue_remediation_tasks. Prazo: semanal. Impacto esperado: governança contínua.
-
-## Riscos de decisão
-Decidir forecast, capacidade comercial, meta, hiring ou expectativa de caixa com dados incompletos pode inflar pipeline, esconder slippage, distorcer win/loss analysis e reduzir accountability por owner. O risco principal não é apenas campo vazio; é tratar registros frágeis como evidência comercial confiável.
+- Responsável: Head de CS. Ação: revisar renovações em risco com plano por conta. Métrica: renewal_risk_customers.
+- Responsável: CS Ops. Ação: criar fila de intervenção por health score, ARR e data de renovação. Métrica: risk_customers.
+- Responsável: CRO. Ação: reportar GRR, NRR e ponte de revenue movements no mesmo painel. Métrica: grr_nrr_bridge.
+- Responsável: CSM Manager. Ação: exigir next step datado em expansão qualificada. Métrica: expansion_without_next_step.
 
 ## Conclusão executiva
-A recomendação é tratar CRM Data Quality como disciplina de Revenue Governance. O projeto mostra onde os dados sugerem risco, quais evidências faltam e quais decisões devem ser protegidas antes da próxima forecast call.
+A recomendação é tratar Customer Health como governança de receita recorrente, não como painel isolado de satisfação. Os dados sugerem onde priorizar retenção, expansão e renovação, mas as hipóteses precisam ser validadas com contexto de conta antes de qualquer conclusão de causa raiz.
 """
 
 

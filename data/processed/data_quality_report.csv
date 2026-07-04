@@ -1,56 +1,80 @@
 table,check_name,status,details
-leads,file_exists,pass,C:\Users\Gustavo Lazzaroto\Documents\Playground\data\processed\leads.csv
-leads,column_exists:lead_id,pass,lead_id
-leads,id_not_null:lead_id,pass,missing=0
-leads,column_exists:source,pass,source
-accounts,file_exists,pass,C:\Users\Gustavo Lazzaroto\Documents\Playground\data\processed\accounts.csv
-accounts,column_exists:account_id,pass,account_id
-accounts,id_not_null:account_id,pass,missing=0
-accounts,column_exists:owner_id,pass,owner_id
-accounts,id_not_null:owner_id,fail,missing=4
-contacts,file_exists,pass,C:\Users\Gustavo Lazzaroto\Documents\Playground\data\processed\contacts.csv
-contacts,column_exists:contact_id,pass,contact_id
-contacts,id_not_null:contact_id,pass,missing=0
-contacts,column_exists:account_id,pass,account_id
-contacts,id_not_null:account_id,fail,missing=4
-opportunities,file_exists,pass,C:\Users\Gustavo Lazzaroto\Documents\Playground\data\processed\opportunities.csv
-opportunities,column_exists:opportunity_id,pass,opportunity_id
-opportunities,id_not_null:opportunity_id,pass,missing=0
-opportunities,column_exists:account_id,pass,account_id
-opportunities,id_not_null:account_id,pass,missing=0
-opportunities,column_exists:owner_id,pass,owner_id
-opportunities,id_not_null:owner_id,fail,missing=4
-opportunities,column_exists:amount,pass,amount
-opportunities,column_exists:close_date,pass,close_date
-opportunities,column_exists:stage,pass,stage
-opportunities,column_exists:forecast_category,pass,forecast_category
-opportunities,column_exists:probability,pass,probability
-users,file_exists,pass,C:\Users\Gustavo Lazzaroto\Documents\Playground\data\processed\users.csv
-users,column_exists:user_id,pass,user_id
-users,id_not_null:user_id,pass,missing=0
-activities,file_exists,pass,C:\Users\Gustavo Lazzaroto\Documents\Playground\data\processed\activities.csv
-activities,column_exists:activity_id,pass,activity_id
-activities,id_not_null:activity_id,pass,missing=0
-activities,column_exists:related_object_id,pass,related_object_id
-activities,id_not_null:related_object_id,pass,missing=0
-forecast_categories,file_exists,pass,C:\Users\Gustavo Lazzaroto\Documents\Playground\data\processed\forecast_categories.csv
-forecast_categories,column_exists:forecast_category,pass,forecast_category
-stages,file_exists,pass,C:\Users\Gustavo Lazzaroto\Documents\Playground\data\processed\stages.csv
-stages,column_exists:stage,pass,stage
-crm_audit_log,file_exists,pass,C:\Users\Gustavo Lazzaroto\Documents\Playground\data\processed\crm_audit_log.csv
-crm_audit_log,column_exists:event_id,pass,event_id
-crm_audit_log,id_not_null:event_id,pass,missing=0
-data_quality_checks,file_exists,pass,C:\Users\Gustavo Lazzaroto\Documents\Playground\data\processed\data_quality_checks.csv
-data_quality_checks,column_exists:check_id,pass,check_id
-data_quality_checks,id_not_null:check_id,pass,missing=0
-remediation_tasks,file_exists,pass,C:\Users\Gustavo Lazzaroto\Documents\Playground\data\processed\remediation_tasks.csv
-remediation_tasks,column_exists:task_id,pass,task_id
-remediation_tasks,id_not_null:task_id,pass,missing=0
-opportunities,amount_non_negative,pass,amount >= 0
-opportunities,probability_between_0_and_1,pass,probability scale 0-1
-opportunities,valid_stages,pass,
-opportunities,valid_forecast_categories,pass,
-accounts,valid_owner_id,pass,
-opportunities,valid_owner_id,pass,
-contacts,valid_account_id,pass,
-opportunities,valid_account_id,pass,
+customers,file_exists,pass,C:\Users\Gustavo Lazzaroto\Documents\Playground\portfolio_work\customer-health-expansion-engine\data\processed\customers.csv
+customers,column_exists:customer_id,pass,customer_id
+customers,id_not_null:customer_id,pass,missing=0
+customers,column_exists:arr,pass,arr
+subscriptions,file_exists,pass,C:\Users\Gustavo Lazzaroto\Documents\Playground\portfolio_work\customer-health-expansion-engine\data\processed\subscriptions.csv
+subscriptions,column_exists:subscription_id,pass,subscription_id
+subscriptions,id_not_null:subscription_id,pass,missing=0
+subscriptions,column_exists:customer_id,pass,customer_id
+subscriptions,id_not_null:customer_id,pass,missing=0
+subscriptions,column_exists:mrr,pass,mrr
+subscriptions,column_exists:status,pass,status
+subscriptions,column_exists:renewal_date,pass,renewal_date
+subscriptions,valid_customer_id,pass,
+health_scores,file_exists,pass,C:\Users\Gustavo Lazzaroto\Documents\Playground\portfolio_work\customer-health-expansion-engine\data\processed\health_scores.csv
+health_scores,column_exists:customer_id,pass,customer_id
+health_scores,id_not_null:customer_id,pass,missing=0
+health_scores,column_exists:health_score,pass,health_score
+health_scores,column_exists:risk_level,pass,risk_level
+health_scores,valid_customer_id,pass,
+product_usage,file_exists,pass,C:\Users\Gustavo Lazzaroto\Documents\Playground\portfolio_work\customer-health-expansion-engine\data\processed\product_usage.csv
+product_usage,column_exists:usage_id,pass,usage_id
+product_usage,id_not_null:usage_id,pass,missing=0
+product_usage,column_exists:customer_id,pass,customer_id
+product_usage,id_not_null:customer_id,pass,missing=0
+product_usage,column_exists:active_users,pass,active_users
+product_usage,column_exists:licensed_users,pass,licensed_users
+product_usage,valid_customer_id,pass,
+support_tickets,file_exists,pass,C:\Users\Gustavo Lazzaroto\Documents\Playground\portfolio_work\customer-health-expansion-engine\data\processed\support_tickets.csv
+support_tickets,column_exists:ticket_id,pass,ticket_id
+support_tickets,id_not_null:ticket_id,pass,missing=0
+support_tickets,column_exists:customer_id,pass,customer_id
+support_tickets,id_not_null:customer_id,pass,missing=0
+support_tickets,column_exists:severity,pass,severity
+support_tickets,column_exists:status,pass,status
+support_tickets,valid_customer_id,pass,
+nps_surveys,file_exists,pass,C:\Users\Gustavo Lazzaroto\Documents\Playground\portfolio_work\customer-health-expansion-engine\data\processed\nps_surveys.csv
+nps_surveys,column_exists:survey_id,pass,survey_id
+nps_surveys,id_not_null:survey_id,pass,missing=0
+nps_surveys,column_exists:customer_id,pass,customer_id
+nps_surveys,id_not_null:customer_id,pass,missing=0
+nps_surveys,column_exists:nps_score,pass,nps_score
+nps_surveys,valid_customer_id,pass,
+qbr_events,file_exists,pass,C:\Users\Gustavo Lazzaroto\Documents\Playground\portfolio_work\customer-health-expansion-engine\data\processed\qbr_events.csv
+qbr_events,column_exists:qbr_id,pass,qbr_id
+qbr_events,id_not_null:qbr_id,pass,missing=0
+qbr_events,column_exists:customer_id,pass,customer_id
+qbr_events,id_not_null:customer_id,pass,missing=0
+qbr_events,column_exists:qbr_date,pass,qbr_date
+qbr_events,column_exists:qbr_quality_score,pass,qbr_quality_score
+qbr_events,valid_customer_id,pass,
+expansion_opportunities,file_exists,pass,C:\Users\Gustavo Lazzaroto\Documents\Playground\portfolio_work\customer-health-expansion-engine\data\processed\expansion_opportunities.csv
+expansion_opportunities,column_exists:opportunity_id,pass,opportunity_id
+expansion_opportunities,id_not_null:opportunity_id,pass,missing=0
+expansion_opportunities,column_exists:customer_id,pass,customer_id
+expansion_opportunities,id_not_null:customer_id,pass,missing=0
+expansion_opportunities,column_exists:estimated_expansion_mrr,pass,estimated_expansion_mrr
+expansion_opportunities,column_exists:stage,pass,stage
+expansion_opportunities,valid_customer_id,pass,
+revenue_movements,file_exists,pass,C:\Users\Gustavo Lazzaroto\Documents\Playground\portfolio_work\customer-health-expansion-engine\data\processed\revenue_movements.csv
+revenue_movements,column_exists:movement_id,pass,movement_id
+revenue_movements,id_not_null:movement_id,pass,missing=0
+revenue_movements,column_exists:customer_id,pass,customer_id
+revenue_movements,id_not_null:customer_id,pass,missing=0
+revenue_movements,column_exists:movement_type,pass,movement_type
+revenue_movements,column_exists:mrr_amount,pass,mrr_amount
+revenue_movements,valid_customer_id,pass,
+churn_events,file_exists,pass,C:\Users\Gustavo Lazzaroto\Documents\Playground\portfolio_work\customer-health-expansion-engine\data\processed\churn_events.csv
+churn_events,column_exists:churn_event_id,pass,churn_event_id
+churn_events,id_not_null:churn_event_id,pass,missing=0
+churn_events,column_exists:customer_id,pass,customer_id
+churn_events,id_not_null:customer_id,pass,missing=0
+churn_events,column_exists:churn_mrr,pass,churn_mrr
+churn_events,valid_customer_id,pass,
+csms,file_exists,pass,C:\Users\Gustavo Lazzaroto\Documents\Playground\portfolio_work\customer-health-expansion-engine\data\processed\csms.csv
+csms,column_exists:csm_id,pass,csm_id
+csms,id_not_null:csm_id,pass,missing=0
+csms,column_exists:csm_name,pass,csm_name
+health_scores,health_score_between_0_and_100,pass,0-100
+nps_surveys,nps_between_0_and_10,pass,0-10

@@ -3,13 +3,14 @@ from __future__ import annotations
 from src import metrics
 
 
-def test_main_metrics_do_not_error_and_stay_in_range():
+def test_customer_health_metrics_do_not_error_and_stay_in_range():
     tables = metrics.load_all()
     summary = metrics.executive_summary_metrics(tables)
-    assert 0 <= summary["crm_data_quality_score"] <= 100
-    assert 0 <= summary["forecast_reliability_score"] <= 100
-    assert 0 <= summary["pipeline_hygiene_score"] <= 100
-    assert 0 <= summary["duplicate_lead_rate"] <= 1
-    assert 0 <= summary["duplicate_account_rate"] <= 1
-    assert 0 <= summary["lead_missing_source_rate"] <= 1
-    assert summary["revenue_at_risk_from_data_quality"] >= 0
+    assert summary["active_customers"] >= 1
+    assert 0 <= summary["grr"] <= 2
+    assert 0 <= summary["nrr"] <= 2
+    assert summary["current_mrr"] >= 0
+    assert summary["gross_lost_mrr"] >= 0
+    assert summary["expansion_pipeline_mrr"] >= 0
+    assert summary["risk_customers"] >= 0
+    assert 0 <= summary["detractor_rate"] <= 1
