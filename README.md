@@ -26,9 +26,14 @@ Customer Health é uma disciplina de Revenue Governance. GRR protege a base, NRR
 - Dashboard Streamlit em português do Brasil.
 
 ## Dashboard Preview
-O dashboard fica em `app/streamlit_app.py` e cobre visão executiva, GRR/NRR, customer health, renewal risk, expansion pipeline, QBR/NPS, CSM portfolio e consultor de gaps.
+O dashboard fica em `app/streamlit_app.py` e cobre visao executiva, GRR/NRR, customer health, renewal risk, expansion pipeline, QBR/NPS, CSM portfolio e consultor de gaps. A prova visual abaixo foi gerada a partir da aplicacao local com dados sinteticos.
 
-Para registrar prova visual, use `docs/screenshots/`.
+![Executive view](docs/screenshots/executive-view.png)
+
+Screenshots adicionais:
+- [Diagnostic view](docs/screenshots/diagnostic-view.png)
+- [Gap consultant](docs/screenshots/gap-consultant.png)
+- [Decision view](docs/screenshots/decision-view.png)
 
 ## How to Run
 ```bash
